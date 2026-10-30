@@ -1,65 +1,65 @@
 pipeline {
     agent any
     parameters {
-        choice(name:'ACTION',choices:['apply','destroy'],description: 'Terraform action to run')
+        choice(name: 'ACTION', choices: ['apply', 'destroy'], description: 'Terraform action to run')
     }
     environment {
-        AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
+        AWS_ACCESS_KEY_ID     = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
     }
     stages {
-        stage ('CHECKOUT GIT CODE') {
+        stage('Checkout Code') {
             steps {
-                echo "checking out code from github"
-                git branch : 'main',url:'https://github.com/rashmigmr13-eng/morning-batch-IAC.git'
+                echo "Checking out code from GitHub"
+                git branch: 'main', url: 'https://github.com/rashmigmr13-eng/TERRAFORM-EVENING-BATCH-PROJECT.git'
             }
         }
-        stage('terraform init') {
+        stage('Terraform Init') {
             steps {
-                echo "initializing terraform"
+                echo "Initializing Terraform"
                 sh 'terraform init'
             }
         }
-        stage('terraform validate') {
+        stage('Terraform Validate') {
             steps {
-                echo "validating terraform configuration"
+                echo "Validating Terraform configuration"
                 sh 'terraform validate'
             }
         }
-        stage('terraform plan') {
+        stage('Terraform Plan') {
             when {
-                expression {params.ACTION == 'apply'}
+                expression { params.ACTION == 'apply' }
             }
             steps {
-                echo "running terraform plan"
+                echo "Running Terraform plan"
                 sh 'terraform plan -out=tfplan'
             }
         }
-        stage('terraform apply') {
+        stage('Terraform Apply') {
             when {
-                expression {params.ACTION == 'apply'}
+                expression { params.ACTION == 'apply' }
             }
             steps {
-                echo "applying terraform configuration"
+                echo "Applying Terraform configuration"
                 sh 'terraform apply -auto-approve tfplan'
             }
         }
-        stage('terraform destroy') {
+        stage('Terraform Destroy') {
             when {
-                expression {params.ACTION == 'destroy'}
+                expression { params.ACTION == 'destroy' }
             }
             steps {
-                echo "destroying terraform managed infrasture"
+                echo "Destroying Terraform-managed infrastructure"
                 sh 'terraform destroy -auto-approve'
             }
         }
     }
     post {
         success {
-            echo "terraform action completed successfully"
+            echo "Terraform action completed successfully"
         }
         failure {
-            echo "terraform failed"
+            echo "Terraform action failed"
         }
     }
 }
